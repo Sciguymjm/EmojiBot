@@ -1,51 +1,48 @@
 import os
 import random
+from PIL import Image
+from svgimgutils import SVGImgUtils
 
-import svg_stack as ss
-
-
-
-
+INKSCAPE_LOCATION = "\"C:\\Program Files\\Inkscape\\inkscape.exe\""
 
 
 def process_parts():
     d = {}
-    for folder in os.listdir('parts'):
+    for folder in os.listdir('pngs'):
         d[folder] = []
+        if os.path.isdir(os.path.join('pngs', folder)):
+            files = os.listdir(os.path.join('pngs', folder))
+            for f in files:
+                fp = os.path.join('pngs', folder, f)
+                d[folder].append(fp)
+    return d
+
+def convert_parts():
+    d = {}
+    for folder in os.listdir('parts'):
         if os.path.isdir(os.path.join('parts', folder)):
             files = os.listdir(os.path.join('parts', folder))
             for f in files:
-                d[folder].append(os.path.join('parts', folder, f))
+                fp = os.path.join('parts', folder, f)
+                # convert
+                fp_converted = fp.replace('parts', 'pngs').replace('.svg', '.png')
+                try:
+                    os.makedirs(os.path.dirname(fp_converted))
+                except:
+                    pass
+                os.system("{} {} -e {}".format(INKSCAPE_LOCATION, fp, fp_converted))
     return d
 
+#convert_parts()
 
 parts_list = process_parts()
 
-from svgimgutils import SVGImgUtils
+background = Image.open(random.choice(parts_list["bases"]))
+for part in ["eyes", "mouths", "eyebrows", "extras"]:
+    if part == "bases":
+        continue
+    fn = random.choice(parts_list[part])
+    foreground = Image.open(fn)
+    background.paste(foreground, (0, 0), foreground)
 
-# Create SVG Image Utils for each SVG image
-base_template = SVGImgUtils.fromfile(random.choice(parts_list['bases']))
-
-
-
-for part in parts_list:
-    if part == 'bases':
-        continue # we already have a base
-    base_template.append(SVGImgUtils.fromfile(random.choice(parts_list[part])))
-
-# Save new merged SVG image
-base_template.save('merged.svg')
-
-
-
-
-
-
-
-doc = ss.Document()
-
-layout1 = ss.VBoxLayout()
-
-doc.setLayout(layout1)
-
-doc.save('qt_api_test.svg')
+background.save("merged.png")
