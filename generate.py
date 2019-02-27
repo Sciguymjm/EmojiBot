@@ -1,7 +1,6 @@
 import os
 import random
 from PIL import Image
-from svgimgutils import SVGImgUtils
 
 INKSCAPE_LOCATION = "\"C:\\Program Files\\Inkscape\\inkscape.exe\""
 
