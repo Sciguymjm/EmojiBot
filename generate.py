@@ -34,15 +34,19 @@ def convert_parts():
     return d
 
 #convert_parts()
+def generate():
+    parts_list = process_parts()
 
-parts_list = process_parts()
+    background = Image.open(random.choice(parts_list["bases"]))
+    for part in ["eyes", "mouths", "eyebrows", "extras"]:
+        if part == "bases":
+            continue
+        fn = random.choice(parts_list[part])
+        foreground = Image.open(fn)
+        background.paste(foreground, (0, 0), foreground)
 
-background = Image.open(random.choice(parts_list["bases"]))
-for part in ["eyes", "mouths", "eyebrows", "extras"]:
-    if part == "bases":
-        continue
-    fn = random.choice(parts_list[part])
-    foreground = Image.open(fn)
-    background.paste(foreground, (0, 0), foreground)
+    background.save("merged.png")
 
-background.save("merged.png")
+
+if __name__ == '__main__':
+    generate()
